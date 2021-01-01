@@ -93,14 +93,15 @@ int main() {
     auto OL = CodeGenOpt::Level::Default; /// -O2 optimization
     std::unique_ptr<llvm::TargetMachine> TargetMachine(Target->createTargetMachine(TargetTriple, CPU, Features, opt, RM, CM, OL));
 
-    /// Setup current module for the target machine
+    /// Setup module for target machine hardware
     mod->setDataLayout(TargetMachine->createDataLayout());
     mod->setTargetTriple(TargetTriple);
 
-    /// retrieve function called "name" from passed module in created ExecutionEngine object
+    /// Create execution engine to run the function imported from the bc/ll file
     std::unique_ptr<ExecutionEngine> executionEngine(llvm::EngineBuilder(std::move(mod)).setEngineKind(
             llvm::EngineKind::Interpreter).create());
 
+    /// Retrieve function from module in created ExecutionEngine object
     Function *add = executionEngine->FindFunctionNamed(StringRef(std::string("_Z3sumff")));
     llvm::GenericValue param1, param2;
     param1.FloatVal = 5;
