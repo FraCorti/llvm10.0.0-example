@@ -29,7 +29,7 @@ link_libraries(${LIBS} ${SYS_LIBS} ${LDF})
 
 execute_process(COMMAND llvm-config --cxxflags OUTPUT_VARIABLE CMAKE_CXX_FLAGS)
 string(STRIP ${CMAKE_CXX_FLAGS} CMAKE_CXX_FLAGS)
-add_executable(llvm_example_kale main.cpp SpoofLLVMContext.cpp SpoofLLVMContext.h)
+add_executable(llvm_example_kale main.cpp)
 
 target_link_libraries(llvm_example_kale
         PRIVATE
@@ -43,4 +43,3 @@ target_link_libraries(llvm_example_kale
         clangLex
         clangParse
         clangSerialization)
-

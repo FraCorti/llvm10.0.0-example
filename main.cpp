@@ -136,7 +136,7 @@ public:
     }
 };
 
-class ExecutionEngineSpoofs {
+class ExecutionEngineSpoof {
 private:
     LLVMContext* context;
     std::unique_ptr<llvm::ExecutionEngine> executionEngine;
@@ -153,7 +153,7 @@ private:
     llvm::TargetOptions opt;
 
 public:
-    ExecutionEngineSpoofs(std::string &mod, LLVMContext& context_) {
+    ExecutionEngineSpoof(std::string &mod, LLVMContext& context_) {
         context = &context_;
         OL = CodeGenOpt::Level::Aggressive;
         RM = Optional<Reloc::Model>();
@@ -221,30 +221,30 @@ int main() {
     InitializeAllTargets();
     InitializeAllTargetMCs();
 
-    const char TestProgram[] = "float sum(float a, float b){return a+b;}\n";
-    const char TestProgram1[] = "float subtract(float a, float b){return a-b;}\n";
+    const char addition_string[] = "float addition(float a, float b){return a+b;}\n";
+    const char subtract_string[] = "float subtract(float a, float b){return a-b;}\n";
 
     clang::LangOptions LO_tmp;
     Compiler compiler(LO_tmp, getCommonCodeGenOpts());
-    compiler.init(TestProgram, "sum");
-    const llvm::Module *sum = compiler.generateIR();
+    compiler.init(addition_string, "addition_module");
+    const llvm::Module *addition_module = compiler.generateIR();
 
     std::string addition;
     raw_string_ostream OS(addition);
-    OS << *sum;
+    OS << *addition_module;
     OS.flush();
     std::cout << addition << std::endl;
 
-    compiler.init(TestProgram1, "subtraction");
-    const llvm::Module *subtraction = compiler.generateIR();
+    compiler.init(subtract_string, "subtraction_module");
+    const llvm::Module *subtraction_module = compiler.generateIR();
 
     std::string Str1;
     raw_string_ostream OS1(Str1);
-    OS1 << *subtraction;
+    OS1 << *subtraction_module;
     OS1.flush();
     std::cout << Str1 << std::endl;
 
-    ExecutionEngineSpoofs executionEngine(addition, compiler.getContext());
+    ExecutionEngineSpoof executionEngine(addition, compiler.getContext());
 
     executionEngine.AddModule(addition);
     executionEngine.AddModule(Str1);
@@ -255,10 +255,9 @@ int main() {
     GenericValue params[] = {param1, param2};
 
     std::cout << param1.FloatVal << " + " << param2.FloatVal << " = "
-              << executionEngine.RunFunction("sum", params).FloatVal << std::endl;
+              << executionEngine.RunFunction("addition", params).FloatVal << std::endl;
 
     std::cout << param1.FloatVal << " - " << param2.FloatVal << " = "
               << executionEngine.RunFunction("subtract", params).FloatVal << std::endl;
-
     return 0;
 }
